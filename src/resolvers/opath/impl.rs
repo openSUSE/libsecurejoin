@@ -58,10 +58,10 @@ use std::{
     },
     path::{Path, PathBuf},
     rc::Rc,
+    sync::LazyLock,
 };
 
 use itertools::Itertools;
-use once_cell::sync::Lazy;
 
 /// Ensure that the expected path within the root matches the current fd.
 fn check_current<RootFd: AsFd, Fd: AsFd, P: AsRef<Path>>(
@@ -135,8 +135,7 @@ fn check_current<RootFd: AsFd, Fd: AsFd, P: AsRef<Path>>(
 // TODO: In theory this value could change during the lifetime of the
 // program, but there's no nice way of detecting that, and the overhead of
 // checking this for every symlink lookup is more likely to be an issue.
-// MSRV(1.80): Use LazyLock.
-static PROTECTED_SYMLINKS_SYSCTL: Lazy<u32> = Lazy::new(|| {
+static PROTECTED_SYMLINKS_SYSCTL: LazyLock<u32> = LazyLock::new(|| {
     utils::sysctl_read_parse(&GLOBAL_PROCFS_HANDLE, "fs.protected_symlinks")
         .expect("should be able to parse fs.protected_symlinks")
 });

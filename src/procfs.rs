@@ -37,18 +37,17 @@ use std::{
         io::{AsFd, BorrowedFd, OwnedFd},
     },
     path::{Path, PathBuf},
+    sync::LazyLock,
 };
 
-use once_cell::sync::Lazy;
 use rustix::{
     fs::{self as rustix_fs, Access, AtFlags},
     mount::{FsMountFlags, FsOpenFlags, MountAttrFlags, OpenTreeFlags},
 };
 
 /// A `procfs` handle to which is used globally by libpathrs.
-// MSRV(1.80): Use LazyLock.
-pub(crate) static GLOBAL_PROCFS_HANDLE: Lazy<ProcfsHandle> =
-    Lazy::new(|| ProcfsHandle::new().expect("should be able to get some /proc handle"));
+pub(crate) static GLOBAL_PROCFS_HANDLE: LazyLock<ProcfsHandle> =
+    LazyLock::new(|| ProcfsHandle::new().expect("should be able to get some /proc handle"));
 
 /// Indicate what base directory should be used when doing `/proc/...`
 /// operations with a [`ProcfsHandle`].

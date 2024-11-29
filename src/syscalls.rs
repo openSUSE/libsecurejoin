@@ -35,9 +35,9 @@ use std::{
         io::{AsFd, AsRawFd, BorrowedFd, FromRawFd, OwnedFd, RawFd},
     },
     path::{Path, PathBuf},
+    sync::LazyLock,
 };
 
-use once_cell::sync::Lazy;
 use rustix::{
     fs::{
         self as rustix_fs, AtFlags, Dev, FileType, Mode, RawMode, Stat, StatFs, Statx, StatxFlags,
@@ -524,8 +524,7 @@ pub(crate) fn renameat<Fd1: AsFd, P1: AsRef<Path>, Fd2: AsFd, P2: AsRef<Path>>(
     })
 }
 
-// MSRV(1.80): Use LazyLock.
-pub(crate) static RENAME_FLAGS_SUPPORTED: Lazy<bool> = Lazy::new(|| {
+pub(crate) static RENAME_FLAGS_SUPPORTED: LazyLock<bool> = LazyLock::new(|| {
     match renameat2(AT_FDCWD, ".", AT_FDCWD, ".", RenameFlags::RENAME_EXCHANGE) {
         Ok(_) => true,
         // We expect EBUSY, but just to be safe we only check for ENOSYS.
@@ -611,9 +610,8 @@ pub(crate) fn statx<Fd: AsFd, P: AsRef<Path>>(
     })
 }
 
-// MSRV(1.80): Use LazyLock.
-pub(crate) static OPENAT2_IS_SUPPORTED: Lazy<bool> =
-    Lazy::new(|| openat2(AT_FDCWD, ".", &Default::default()).is_ok());
+pub(crate) static OPENAT2_IS_SUPPORTED: LazyLock<bool> =
+    LazyLock::new(|| openat2(AT_FDCWD, ".", &Default::default()).is_ok());
 
 bitflags! {
     /// Wrapper for the underlying `libc`'s `RESOLVE_*` flags.

@@ -31,9 +31,8 @@ use std::{
     os::unix::io::{AsFd, OwnedFd},
     path::{Path, PathBuf},
     rc::Rc,
+    sync::LazyLock,
 };
-
-use once_cell::sync::Lazy;
 
 /// `O_PATH`-based userspace resolver.
 pub(crate) mod opath;
@@ -65,8 +64,7 @@ pub(crate) enum ResolverBackend {
     //       hyper-concerned users.
 }
 
-// MSRV(1.80): Use LazyLock.
-static DEFAULT_RESOLVER_TYPE: Lazy<ResolverBackend> = Lazy::new(|| {
+static DEFAULT_RESOLVER_TYPE: LazyLock<ResolverBackend> = LazyLock::new(|| {
     if *syscalls::OPENAT2_IS_SUPPORTED {
         ResolverBackend::KernelOpenat2
     } else {

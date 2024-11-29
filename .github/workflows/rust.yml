@@ -29,7 +29,7 @@ on:
 name: rust-ci
 
 env:
-  RUST_MSRV: "1.63"
+  RUST_MSRV: "1.80"
 
 jobs:
   codespell:
